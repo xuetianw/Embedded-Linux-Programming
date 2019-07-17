@@ -26,13 +26,30 @@
 #include <netdb.h>
 #include <string.h>			// for strncmp()
 #include <unistd.h>			// for close()
+#include <pthread.h>
+#include "udp_listen.h"
 
 #define MSG_MAX_LEN 1024
 #define PORT		22110
 
-int udp_thread()
+pthread_t udp_id;
+void *udp_thread();
+
+
+
+void UdpListener_startListening()
 {
-	printf("Brian's Net Listen Test on UDP port %d:\n", PORT);
+    pthread_create(&udp_id, NULL, udp_thread, NULL);
+}
+
+void Udp_cleanup()
+{
+    pthread_join(udp_id, NULL);
+}
+
+void *udp_thread()
+{
+	printf("Fred's Net Listen Test on UDP port %d:\n", PORT);
 	printf("Connect using: \n");
 	printf("    netcat -u 127.0.0.1 %d\n", PORT);
 

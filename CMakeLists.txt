@@ -5,6 +5,9 @@ set(CMAKE_C_STANDARD 99)
 #SET(CMAKE_C_COMPILER arm-linux-gnueabihf-gcc)
 
 add_executable(CMPT433ASS2
-        demo_udpListen.c
+        udp_listen.c
         main.c
         )
+
+
+target_link_libraries(CMPT433ASS2 pthread)
