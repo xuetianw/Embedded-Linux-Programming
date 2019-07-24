@@ -10,6 +10,7 @@ add_executable(CMPT433ASS2
         udp_listen.c
         main.c
 #        a2d.c
+        I2C.c
         )
 
 
