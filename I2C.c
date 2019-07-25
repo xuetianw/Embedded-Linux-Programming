@@ -10,6 +10,8 @@
 #include <linux/i2c-dev.h>
 #include <string.h>
 #include <time.h>
+#include <pthread.h>
+#include "I2C.h"
 
 
 #define I2CDRV_LINUX_BUS0 "/dev/i2c-0"
@@ -131,15 +133,17 @@ int FileIODrv_echo_to_file(char* file, char* buff)
 #define NIGHT_REG_A 0x90
 #define NIGHT_REG_B 0x8E
 
+int left_digit = 0;
+int right_digit = 0;
 
 void turn_on_left();
 
 void turn_on_right();
 
-void I2C_init();
+
 
 void i2c_cleanup();
-void i2c_display();
+void *i2c_display_thread();
 
 void display_number();
 
@@ -148,12 +152,17 @@ int i2cFileDesc;
 void turn_off_right();
 void turn_off_left();
 void timing();
+void *change_digits();
+
+pthread_t display_id;
+pthread_t change_display_id;
+
 
 // Insert the above functions here...
 //int main()
 //{
 //    I2C_init();
-//    i2c_display();
+//    i2c_display_thread();
 ////    i2c_cleanup();
 //
 //
@@ -184,29 +193,51 @@ void I2C_init() {
     writeI2cReg(i2cFileDesc, REG_DIRB, 0x00);
 }
 
-void i2c_display() {
-    // Drive an hour-glass looking character
-// (Like an X with a bar on top & bottom)
-    for (int i = 0; i < 99; i++) {
-//        display_number(1);
-        display_number(i / 10, i % 10);
-    }
-while (1) {
+void I2C_start_display()
+{
+    pthread_create(&display_id, NULL, i2c_display_thread, NULL);
+    pthread_create(&change_display_id, NULL, change_digits, NULL);
+}
+
+void I2C_display_cleanup()
+{
+    pthread_join(display_id, NULL);
+    pthread_join(change_display_id, NULL);
+}
+
+
+void display_digits(int left_num, int right_num) {
     turn_on_left();
     turn_off_right();
-    display_number(9);
+    display_number(left_digit);
     timing();
     turn_off_left();
     turn_on_right();
-    display_number(1);
+    display_number(right_digit);
     timing();
 }
 
-//    display_number();
+void *change_digits() {
+    while (1) {
+        for (int i = 0; i < 99; i++) {
+            left_digit = i / 10;
+            right_digit = i % 10;
+            sleep(1);
+        }
+    }
+}
 
-    // Read a register:
-    unsigned char regVal = readI2cReg(i2cFileDesc, REG_OUTA);
-    printf("Reg OUT-A = 0x%02x\n", regVal);
+void *i2c_display_thread() {
+    // Drive an hour-glass looking character
+// (Like an X with a bar on top & bottom)
+    while (1) {
+        printf("left dight: %d, right digit %d\n", left_digit, right_digit);
+        display_digits(left_digit, right_digit);
+//        unsigned char regVal = readI2cReg(i2cFileDesc, REG_OUTA);
+//        printf("Reg OUT-A = 0x%02x\n", regVal);
+    }
+
+
 
 }
 
