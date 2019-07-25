@@ -34,7 +34,7 @@
 
 pthread_t udp_id;
 void *udp_thread();
-
+void process_message(char *message);
 
 
 void UdpListener_startListening()
@@ -80,15 +80,16 @@ void *udp_thread()
 		// Make it null terminated (so string functions work):
 		// NOTE: Unsafe in some cases; why?
 		message[bytesRx] = 0;
-		printf("Message received (%d bytes): \n\n'%s'\n", bytesRx, message);
-		
+//		printf("Message received (%d bytes): \n\n'%s'\n", bytesRx, message);
+		process_message(message);
+
 		// Extract the value from the message:
 		// (Process the message any way your app requires).
-		int incMe = atoi(message);
+//		int incMe = atoi(message);
 
 		// Compose the reply message (re-using the same buffer here):
 		// (NOTE: watch for buffer overflows!).
-		sprintf(message, "Math: %d + 1 = %d\n", incMe, incMe + 1);
+//		sprintf(message, "Math: %d + 1 = %d\n", incMe, incMe + 1);
 
 		// Transmit a reply:
 		sin_len = sizeof(sin);
@@ -102,4 +103,17 @@ void *udp_thread()
 	close(socketDescriptor);
 	
 	return 0;
+}
+
+void process_message(char *message) {
+    printf("%s\n", message);
+    if(strcmp(message, "help\n")==0)
+    {
+        sprintf(message, "%s", "Accepted command examples:\n"
+               "count      -- display number arrays sorted.\n"
+               "get length -- display length of array currently being sorted.\n"
+               "get array  -- display the full array being sorted.\n"
+               "get 10     -- display the tenth element of array currently being sorted.\n"
+               "stop       -- cause the server program to end.\n");
+    }
 }
