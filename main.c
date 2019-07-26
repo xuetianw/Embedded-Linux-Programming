@@ -7,18 +7,18 @@
 
 int main() {
 
-//    A2D_init();
-    I2C_init();
+    A2D_init();
+//    I2C_init();
 
-//    pot_start_reading();
-    I2C_start_display();
-    UdpListener_startListening();
+    pot_start_reading();
+//    I2C_start_display();
+//    UdpListener_startListening();
 
-    printf("Hello, World!\n");
+//    printf("Hello, World!\n");
 
-    Udp_cleanup();
-    I2C_display_cleanup();
-//    por_cleanup();
+//    Udp_cleanup();
+//    I2C_display_cleanup();
+    pot_cleanup();
 
 
     return 0;

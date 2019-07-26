@@ -7,5 +7,5 @@
 
 void A2D_init();
 void pot_start_reading ();
-void por_cleanup();
+void pot_cleanup();
 #endif //CMPT433ASS2_A2D_H

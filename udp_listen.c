@@ -107,13 +107,25 @@ void *udp_thread()
 
 void process_message(char *message) {
     printf("%s\n", message);
-    if(strcmp(message, "help\n")==0)
+    if(strcmp(message, "help\n") == 0)
     {
         sprintf(message, "%s", "Accepted command examples:\n"
-               "count      -- display number arrays sorted.\n"
-               "get length -- display length of array currently being sorted.\n"
-               "get array  -- display the full array being sorted.\n"
-               "get 10     -- display the tenth element of array currently being sorted.\n"
-               "stop       -- cause the server program to end.\n");
+                               "count      -- display number arrays sorted.\n"
+                               "get length -- display length of array currently being sorted.\n"
+                               "get array  -- display the full array being sorted.\n"
+                               "get 10     -- display the tenth element of array currently being sorted.\n"
+                               "stop       -- cause the server program to end.\n");
+    } else if (strcmp(message, "count\n") == 0) {
+        sprintf(message, "%s", "count\n");
+    } else if (strcmp(message, "get #\n") == 0) {
+        sprintf(message, "%s", "count\n");
+    } else if (strcmp(message, "count\n") == 0) {
+        sprintf(message, "%s", "get length\n");
+    } else if (strcmp(message, "get array\n") == 0) {
+        sprintf(message, "%s", "get array\n");
+    } else if (strcmp(message, "stop\n") == 0) {
+        sprintf(message, "%s", "stop\n");
+    } else {
+        sprintf(message, "%s", "Unknown command. Type 'help' for command list.\n");
     }
 }

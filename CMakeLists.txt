@@ -7,10 +7,11 @@ SET(CMAKE_C_COMPILER arm-linux-gnueabihf-gcc)
 set(CMAKE_RUNTIME_OUTPUT_DIRECTORY "~/cmpt433/public")
 
 add_executable(CMPT433ASS2
-        udp_listen.c
+#        udp_listen.c
         main.c
-#        a2d.c
-        I2C.c
+        a2d.c
+#        I2C.c
+#        sorter.c
         )
 
 
