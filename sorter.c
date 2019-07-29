@@ -53,9 +53,9 @@ void static permutate_array()
     for (int i = 0; i < 100; i++) {
         int index1 = rand() % array_size;
         int index2 = rand() % array_size;
-        int temp = arr[array_size - 1];
-        arr[array_size - 1] = arr[i];
-        arr[i] = temp;
+        int temp = arr[index1];
+        arr[index1] = arr[index2];
+        arr[index2] = temp;
     }
 }
 
