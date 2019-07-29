@@ -8,5 +8,6 @@
 void I2C_init();
 void I2C_start_display();
 void I2C_display_cleanup();
-
+void stop_I2C();
+void *change_digits();
 #endif //CMPT433ASS2_I2C_H

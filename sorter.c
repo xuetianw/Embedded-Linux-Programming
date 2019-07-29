@@ -5,20 +5,22 @@
 #include "sorter.h"
 #include <stdlib.h>
 #include <pthread.h>
+#include <stdio.h>
+#include <zconf.h>
 
-int* p;
-int array_size = 100;
+int* arr;
+int array_size = 2100;
 long long unsigned sorted_total;
 pthread_t sorter_id;
-int stop = 0;
+int static stopping = 0;
+
+//
+//void init() {
+//    arr = malloc(sizeof(arr) * array_size);
+//}
 
 
-void init() {
-    p = malloc(sizeof(p) * array_size);
-}
-
-
-void swap(int *xp, int *yp)
+void static swap(int* xp, int* yp)
 {
     int temp = *xp;
     *xp = *yp;
@@ -26,18 +28,15 @@ void swap(int *xp, int *yp)
 }
 
 // An optimized version of Bubble Sort
-void bubbleSort(int arr[], int n)
+void static bubbleSort()
 {
     int i, j;
     int swapped;
-    for (i = 0; i < n-1; i++)
-    {
+    for (i = 0; i < array_size - 1; i++) {
         swapped = 0;
-        for (j = 0; j < n-i-1; j++)
-        {
-            if (arr[j] > arr[j+1])
-            {
-                swap(&arr[j], &arr[j+1]);
+        for (j = 0; j < array_size - i - 1; j++) {
+            if (arr[j] > arr[j + 1]) {
+                swap(&arr[j], &arr[j + 1]);
                 swapped = 1;
             }
         }
@@ -48,47 +47,70 @@ void bubbleSort(int arr[], int n)
     }
 }
 
-void permutate_array() {
-    for (int i = 0; i < array_size/2; i++) {
-        int temp = p[array_size-1];
-        p[array_size-1] = p[i];
-        p[i-1] = temp;
+void static permutate_array()
+{
+    srand(time(NULL));
+    for (int i = 0; i < 100; i++) {
+        int index1 = rand() % array_size;
+        int index2 = rand() % array_size;
+        int temp = arr[array_size - 1];
+        arr[array_size - 1] = arr[i];
+        arr[i] = temp;
     }
 }
 
-void *sort_thread() {
-    while (!stop) {
-
+void* sort_thread()
+{
+    while (!stopping) {
+        arr = malloc(sizeof(arr) * array_size);
+        for (int i = 0; i < array_size; i++) {
+            arr[i] = i + 1;
+        }
+        permutate_array();
+        bubbleSort();
+        sorted_total++;
+        free(arr);
+//        printf("sorted_total: %lld\n", sorted_total);
     }
 }
 
-void Sorter_startSorting(void) {
+void Sorter_startSorting(void)
+{
     pthread_create(&sorter_id, NULL, sort_thread, NULL);
 }
 
-void Sorter_stopSorting(void) {
-    stop = 1;
+void Sorter_stopSorting(void)
+{
+    stopping = 1;
 }
 
-// Get the size of the array currently being sorted.
-// Set the size the next array to sort (don’t change current array)
+void Sorter_cleanup(void)
+{
+    pthread_join(sorter_id, NULL);
+}
+
+// Get the size of the arr currently being sorted.
+// Set the size the next arr to sort (don’t change current arr)
 void Sorter_setArraySize(int newSize) {
     array_size = newSize;
 }
 
-int Sorter_getArrayLength(void) {
+int Sorter_getArrayLength(void)
+{
     return array_size;
 }
 
-// Get a copy of the current (potentially partially sorted) array.
-// Returns a newly allocated array and sets 'length' to be the
-// number of elements in the returned array (output-only parameter).
+// Get a copy of the current (potentially partially sorted) arr.
+// Returns a newly allocated arr and sets 'length' to be the
+// number of elements in the returned arr (output-only parameter).
 // The calling code must call free() on the returned pointer.
-int* Sorter_getArrayData(int* length) {
+int* Sorter_getArrayData(int* length)
+{
 
 }
 
 // Get the number of arrays which have finished being sorted.
-long long Sorter_getNumberArraysSorted(void) {
+long long Sorter_getNumberArraysSorted(void)
+{
     return sorted_total;
 }

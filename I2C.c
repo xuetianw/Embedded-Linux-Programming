@@ -12,6 +12,7 @@
 #include <time.h>
 #include <pthread.h>
 #include "I2C.h"
+#include "sorter.h"
 
 
 #define I2CDRV_LINUX_BUS0 "/dev/i2c-0"
@@ -20,6 +21,7 @@
 
 #define EXPORT_PATH "/sys/class/gpio/export"
 
+void second_timing();
 
 static int initI2cBus(char* bus, int address)
 {
@@ -133,6 +135,8 @@ int FileIODrv_echo_to_file(char* file, char* buff)
 #define NIGHT_REG_A 0x90
 #define NIGHT_REG_B 0x8E
 
+static int stopping = 0;
+
 int left_digit = 0;
 int right_digit = 0;
 
@@ -140,7 +144,9 @@ void turn_on_left();
 
 void turn_on_right();
 
-
+void stop_I2C() {
+    stopping = 1;
+}
 
 void i2c_cleanup();
 void *i2c_display_thread();
@@ -152,10 +158,11 @@ int i2cFileDesc;
 void turn_off_right();
 void turn_off_left();
 void timing();
-void *change_digits();
 
 pthread_t display_id;
 pthread_t change_display_id;
+
+
 
 
 // Insert the above functions here...
@@ -197,6 +204,7 @@ void I2C_start_display()
 {
     pthread_create(&display_id, NULL, i2c_display_thread, NULL);
     pthread_create(&change_display_id, NULL, change_digits, NULL);
+//    change_digits();
 }
 
 void I2C_display_cleanup()
@@ -217,28 +225,53 @@ void display_digits(int left_num, int right_num) {
     timing();
 }
 
+int previous_sort_total = 0;
+int sort_total;
+int sorted_lastsecond;
 void *change_digits() {
-    while (1) {
-        for (int i = 0; i < 99; i++) {
-            left_digit = i / 10;
-            right_digit = i % 10;
-            sleep(1);
+    while (!stopping) {
+        second_timing();
+        sort_total = Sorter_getNumberArraysSorted();
+        sorted_lastsecond = sort_total - previous_sort_total;
+        previous_sort_total = sort_total;
+        if (sorted_lastsecond >= 99) {
+            left_digit = 9;
+            right_digit = 9;
+        } else {
+            left_digit = sorted_lastsecond / 10;
+            right_digit = sorted_lastsecond % 10;
         }
+        printf("previous_sort_total %d \n", sorted_lastsecond);
+
+
+//        printf("left_digit %d, right_digit %d\n", left_digit, right_digit);
+//        left_digit = rand() % 10;
+//        right_digit = rand() % 10;
+//        for (int i = 0; i < 99; i++) {
+//            left_digit = i / 10;
+//            right_digit = i % 10;
+//            sleep(1);
+//            printf("left_digit, right_digit set\n");
+//        }
+//        printf("change_digits\n");
     }
+    printf("change_digits terminated\n");
+    return NULL;
 }
 
 void *i2c_display_thread() {
     // Drive an hour-glass looking character
 // (Like an X with a bar on top & bottom)
-    while (1) {
-        printf("left dight: %d, right digit %d\n", left_digit, right_digit);
+    while (!stopping) {
+//        printf("left dight: %d, right digit %d\n", left_digit, right_digit);
         display_digits(left_digit, right_digit);
 //        unsigned char regVal = readI2cReg(i2cFileDesc, REG_OUTA);
 //        printf("Reg OUT-A = 0x%02x\n", regVal);
     }
-
-
-
+    turn_off_right();
+    turn_off_left();
+    printf("i2c_display_thread terminated\n");
+    return NULL;
 }
 
 void display_number(int left) {
@@ -301,6 +334,13 @@ void turn_off_left() { FileIODrv_echo_to_file("/sys/class/gpio/gpio61/value", "0
 void timing() {//    printf("Timing test\n");
     long seconds = 0;
     long nanoseconds = 1e+7;
+    struct timespec reqDelay = {seconds, nanoseconds};
+    nanosleep(&reqDelay, (struct timespec*) NULL);
+}
+
+void second_timing() {//    printf("Timing test\n");
+    long seconds = 1;
+    long nanoseconds = 0;
     struct timespec reqDelay = {seconds, nanoseconds};
     nanosleep(&reqDelay, (struct timespec*) NULL);
 }

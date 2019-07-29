@@ -8,6 +8,7 @@
 #include <pthread.h>
 #include <zconf.h>
 #include "a2d.h"
+#include "sorter.h"
 
 
 int A2D_reading[10] = {0, 500, 1000, 1500, 2000, 2500, 3000, 3500, 4000, 4100};
@@ -20,8 +21,14 @@ int arraysize[10] = {1, 20, 60, 120, 250, 300, 500, 800, 1200, 2100};
 
 
 static pthread_t pot_id;
+static int stopping = 0;
 
-int process_voltage(double voltage);
+void stop_a2d() {
+    stopping = 1;
+}
+
+
+int process_voltage(double reading);
 
 void write_to_file(char* fileName, char* write_value) {
     FILE* file = fopen(fileName, "w");
@@ -65,14 +72,17 @@ int getVoltage0Reading()
 
 void *pot_thread()
 {
-    while (true) {
+    while (!stopping) {
         int reading = getVoltage0Reading();
         double voltage = ((double)reading / A2D_MAX_READING) * A2D_VOLTAGE_REF_V;
-        printf("Value %5d ==> %5.2fV\n", reading, voltage);
+//        printf("Value %5d ==> %5.2fV\n", reading, voltage);
         int new_arraysize = process_voltage(reading);
-        printf("new_arraysize: %d\n", new_arraysize);
+//        printf("set new_arraysize: %d\n", new_arraysize);
+//        Sorter_setArraySize(new_arraysize);
         sleep(1);
     }
+    printf("a2d pot_thread terminated\n");
+    return NULL;
 }
 
 
@@ -84,13 +94,11 @@ int process_voltage(double reading) {
             int left_size = arraysize[i];
             int right_size = arraysize[i + 1];
             double slope = (double) (right_size - left_size) / (right_read - left_read);
-            printf("left_read: %d, right_read: %d", left_read, right_read);
-            printf("left_size: %d, right_size: %d slope: %lf\n", left_size, right_size, slope);
             int result = left_size + slope * (reading - A2D_reading[i]);
             return result;
         }
     }
-    return 0;
+    return 1;
 }
 
 void pot_start_reading ()

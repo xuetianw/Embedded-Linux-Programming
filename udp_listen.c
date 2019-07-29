@@ -28,6 +28,9 @@
 #include <unistd.h>			// for close()
 #include <pthread.h>
 #include "udp_listen.h"
+#include "a2d.h"
+#include "I2C.h"
+#include "sorter.h"
 
 #define MSG_MAX_LEN 1024
 #define PORT		22110
@@ -35,7 +38,7 @@
 pthread_t udp_id;
 void *udp_thread();
 void process_message(char *message);
-
+static int stopping = 0;
 
 void UdpListener_startListening()
 {
@@ -69,7 +72,7 @@ void *udp_thread()
 	// Bind the socket to the port (PORT) that we specify
 	bind (socketDescriptor, (struct sockaddr*) &sin, sizeof(sin));
 	
-	while (1) {
+	while (!stopping) {
 		// Get the data (blocking)
 		// Will change sin (the address) to be the address of the client.
 		// Note: sin passes information in and out of call!
@@ -98,6 +101,7 @@ void *udp_thread()
 				0,
 				(struct sockaddr *) &sin, sin_len);
 	}
+    printf("udp_thread terminated\n");
 
 	// Close
 	close(socketDescriptor);
@@ -111,20 +115,23 @@ void process_message(char *message) {
     {
         sprintf(message, "%s", "Accepted command examples:\n"
                                "count      -- display number arrays sorted.\n"
-                               "get length -- display length of array currently being sorted.\n"
-                               "get array  -- display the full array being sorted.\n"
-                               "get 10     -- display the tenth element of array currently being sorted.\n"
-                               "stop       -- cause the server program to end.\n");
+                               "get length -- display length of arr currently being sorted.\n"
+                               "get arr  -- display the full arr being sorted.\n"
+                               "get 10     -- display the tenth element of arr currently being sorted.\n"
+                               "stopping       -- cause the server program to end.\n");
     } else if (strcmp(message, "count\n") == 0) {
         sprintf(message, "%s", "count\n");
     } else if (strcmp(message, "get #\n") == 0) {
         sprintf(message, "%s", "count\n");
     } else if (strcmp(message, "count\n") == 0) {
         sprintf(message, "%s", "get length\n");
-    } else if (strcmp(message, "get array\n") == 0) {
-        sprintf(message, "%s", "get array\n");
+    } else if (strcmp(message, "get arr\n") == 0) {
+        sprintf(message, "%s", "get arr\n");
     } else if (strcmp(message, "stop\n") == 0) {
-        sprintf(message, "%s", "stop\n");
+        stopping = 1;
+        stop_a2d();
+        stop_I2C();
+        Sorter_stopSorting();
     } else {
         sprintf(message, "%s", "Unknown command. Type 'help' for command list.\n");
     }
