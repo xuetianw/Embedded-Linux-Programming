@@ -116,15 +116,13 @@ void process_message(char *message) {
         sprintf(message, "%s", "Accepted command examples:\n"
                                "count      -- display number arrays sorted.\n"
                                "get length -- display length of arr currently being sorted.\n"
-                               "get arr  -- display the full arr being sorted.\n"
+                               "get arr    -- display the full arr being sorted.\n"
                                "get 10     -- display the tenth element of arr currently being sorted.\n"
-                               "stopping       -- cause the server program to end.\n");
+                               "stop       -- cause the server program to end.\n");
     } else if (strcmp(message, "count\n") == 0) {
-        sprintf(message, "%s", "count\n");
-    } else if (strcmp(message, "get #\n") == 0) {
-        sprintf(message, "%s", "count\n");
-    } else if (strcmp(message, "count\n") == 0) {
-        sprintf(message, "%s", "get length\n");
+        sprintf(message, "Number of arrays sorted = %lld\n", Sorter_getNumberArraysSorted());
+    }  else if (strcmp(message, "get length\n") == 0) {
+        sprintf(message, "Current array length = %d\n", Sorter_getArrayLength());
     } else if (strcmp(message, "get arr\n") == 0) {
         sprintf(message, "%s", "get arr\n");
     } else if (strcmp(message, "stop\n") == 0) {
@@ -133,6 +131,23 @@ void process_message(char *message) {
         stop_I2C();
         Sorter_stopSorting();
     } else {
-        sprintf(message, "%s", "Unknown command. Type 'help' for command list.\n");
+        if (strlen(message) >= strlen("get #\n")) {
+            char subbuff[strlen(message) + 1];
+            memcpy(subbuff, message, 4);
+            subbuff[3] = '\0';
+            if(strcmp(subbuff, "get") == 0) {
+                memcpy(subbuff, &message[4], strlen(message)- strlen("get "));
+                subbuff[strlen(message)- strlen("get ")] = '\0';
+                printf("%s", subbuff);
+                char* end;
+                long number = strtol(subbuff, &end, 0);
+                if (*end == '\0') {
+                    Sorter_getArrayLength();
+//                    printf("okay\n");
+                }
+
+            }
+        }
+
     }
 }

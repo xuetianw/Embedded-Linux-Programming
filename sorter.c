@@ -15,11 +15,6 @@ pthread_t sorter_id;
 int static stopping = 0;
 pthread_mutex_t mutex = PTHREAD_MUTEX_INITIALIZER;
 
-//
-//void init() {
-//    arr = malloc(sizeof(arr) * array_size);
-//}
-
 
 void static fillin_array();
 

@@ -22,7 +22,5 @@ int main() {
     I2C_display_cleanup();
     pot_cleanup();
     Sorter_cleanup();
-
-
     return 0;
 }
