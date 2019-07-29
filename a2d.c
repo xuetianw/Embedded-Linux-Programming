@@ -74,11 +74,11 @@ void *pot_thread()
 {
     while (!stopping) {
         int reading = getVoltage0Reading();
-        double voltage = ((double)reading / A2D_MAX_READING) * A2D_VOLTAGE_REF_V;
+//        double voltage = ((double)reading / A2D_MAX_READING) * A2D_VOLTAGE_REF_V;
 //        printf("Value %5d ==> %5.2fV\n", reading, voltage);
         int new_arraysize = process_voltage(reading);
-//        printf("set new_arraysize: %d\n", new_arraysize);
-//        Sorter_setArraySize(new_arraysize);
+        printf("set new_arraysize: %d\n", new_arraysize);
+        Sorter_setArraySize(new_arraysize);
         sleep(1);
     }
     printf("a2d pot_thread terminated\n");

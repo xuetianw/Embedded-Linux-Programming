@@ -9,16 +9,19 @@
 #include <zconf.h>
 
 int* arr;
-int array_size = 2100;
+int array_size = 100;
 long long unsigned sorted_total;
 pthread_t sorter_id;
 int static stopping = 0;
+pthread_mutex_t mutex = PTHREAD_MUTEX_INITIALIZER;
 
 //
 //void init() {
 //    arr = malloc(sizeof(arr) * array_size);
 //}
 
+
+void static fillin_array();
 
 void static swap(int* xp, int* yp)
 {
@@ -50,7 +53,7 @@ void static bubbleSort()
 void static permutate_array()
 {
     srand(time(NULL));
-    for (int i = 0; i < 100; i++) {
+    for (int i = 0; i < 1000; i++) {
         int index1 = rand() % array_size;
         int index2 = rand() % array_size;
         int temp = arr[index1];
@@ -62,15 +65,21 @@ void static permutate_array()
 void* sort_thread()
 {
     while (!stopping) {
+        pthread_mutex_lock(&mutex);
         arr = malloc(sizeof(arr) * array_size);
-        for (int i = 0; i < array_size; i++) {
-            arr[i] = i + 1;
-        }
+        fillin_array();
         permutate_array();
         bubbleSort();
         sorted_total++;
         free(arr);
 //        printf("sorted_total: %lld\n", sorted_total);
+        pthread_mutex_unlock(&mutex);
+    }
+}
+
+void static fillin_array() {
+    for (int i = 0; i < array_size; i++) {
+        arr[i] = i + 1;
     }
 }
 
@@ -92,7 +101,9 @@ void Sorter_cleanup(void)
 // Get the size of the arr currently being sorted.
 // Set the size the next arr to sort (don’t change current arr)
 void Sorter_setArraySize(int newSize) {
+    pthread_mutex_lock(&mutex);
     array_size = newSize;
+    pthread_mutex_unlock(&mutex);
 }
 
 int Sorter_getArrayLength(void)
