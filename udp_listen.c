@@ -138,14 +138,20 @@ void process_message(char *message) {
             if(strcmp(subbuff, "get") == 0) {
                 memcpy(subbuff, &message[4], strlen(message)- strlen("get "));
                 subbuff[strlen(message)- strlen("get ")] = '\0';
-                printf("%s", subbuff);
+                printf("%s\n", subbuff);
                 char* end;
-                long number = strtol(subbuff, &end, 0);
-                if (*end == '\0') {
-                    Sorter_getArrayLength();
-//                    printf("okay\n");
+                long requested_index = strtol(subbuff, &end, 0);
+                printf("requested_index :%ld\n", requested_index);
+                int array_length = Sorter_getArrayLength();
+                if (requested_index < 1 || requested_index > array_length) {
+                    sprintf(message, "Invalid argument. Must be between 1 and %d (# found).\n",
+                            array_length);
                 }
-
+//                else {
+//                    int element = Sorter_getElementByIndex(requested_index);
+//                    // Generate the answer
+//                    sprintf(message, "Value %ld= %d\n", requested_index, element);;
+//                }
             }
         }
 

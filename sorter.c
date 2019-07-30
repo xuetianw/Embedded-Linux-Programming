@@ -61,20 +61,19 @@ void* sort_thread()
 {
     while (!stopping) {
         pthread_mutex_lock(&mutex);
-        arr = malloc(sizeof(arr) * array_size);
-        fillin_array();
-        permutate_array();
-        bubbleSort();
+        {
+            arr = malloc(sizeof(arr) * array_size);
+            for (int i = 0; i < array_size; i++) {
+                arr[i] = i + 1;
+            }
+            permutate_array();
+            bubbleSort();
+        }
+        pthread_mutex_unlock(&mutex);
+
         sorted_total++;
         free(arr);
 //        printf("sorted_total: %lld\n", sorted_total);
-        pthread_mutex_unlock(&mutex);
-    }
-}
-
-void static fillin_array() {
-    for (int i = 0; i < array_size; i++) {
-        arr[i] = i + 1;
     }
 }
 
@@ -97,8 +96,33 @@ void Sorter_cleanup(void)
 // Set the size the next arr to sort (don’t change current arr)
 void Sorter_setArraySize(int newSize) {
     pthread_mutex_lock(&mutex);
-    array_size = newSize;
+    {
+        array_size = newSize;
+    }
     pthread_mutex_unlock(&mutex);
+}
+
+int Sorter_getElementByIndex(int index)
+{
+//    pthread_mutex_lock(&mutex);
+//    {
+//        if (index < array_size) {
+//            return arr[index];
+//        } else {
+//            return 0;
+//        }
+//    }
+//    pthread_mutex_unlock(&mutex);
+
+//    unsigned long long primeRequested = 0;
+//    pthread_mutex_lock(&s_primeMutex);
+//    {
+//        if (index < s_primesFound) {
+//            primeRequested = s_pPrimes[index];
+//        }
+//    }
+//    pthread_mutex_unlock(&s_primeMutex);
+//    return primeRequested;
 }
 
 int Sorter_getArrayLength(void)

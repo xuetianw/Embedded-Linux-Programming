@@ -34,4 +34,7 @@ void Sorter_cleanup(void);
 
 void *sort_thread();
 
+
+int Sorter_getElementByIndex(int index);
+
 #endif
