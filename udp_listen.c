@@ -124,6 +124,7 @@ void process_message(char *message) {
     }  else if (strcmp(message, "get length\n") == 0) {
         sprintf(message, "Current array length = %d\n", Sorter_getArrayLength());
     } else if (strcmp(message, "get arr\n") == 0) {
+//        int *arr = getArray();
         sprintf(message, "%s", "get arr\n");
     } else if (strcmp(message, "stop\n") == 0) {
         stopping = 1;
@@ -142,16 +143,28 @@ void process_message(char *message) {
                 char* end;
                 long requested_index = strtol(subbuff, &end, 0);
                 printf("requested_index :%ld\n", requested_index);
-                int array_length = Sorter_getArrayLength();
+                int array_length;
+                int *array = Sorter_getArrayData(&array_length);
                 if (requested_index < 0 || requested_index > array_length) {
                     sprintf(message, "Invalid argument. Must be between 1 and %d (# found).\n",
                             array_length);
+                } else {
+                    sprintf(message, "Value %ld = %d\n", requested_index, array[requested_index]);;
                 }
-                else {
-                    int element = Sorter_getElementByIndex(requested_index);
-                    // Generate the answer
-                    sprintf(message, "Value %ld = %d\n", requested_index, element);;
-                }
+
+
+
+
+
+//                int array_length = Sorter_getArrayLength();
+//                if (requested_index < 0 || requested_index > array_length) {
+//                    sprintf(message, "Invalid argument. Must be between 1 and %d (# found).\n",
+//                            array_length);
+//                } else {
+//                    int element = Sorter_getElementByIndex(requested_index);
+//                    // Generate the answer
+//                    sprintf(message, "Value %ld = %d\n", requested_index, element);;
+//                }
             }
         }
 
