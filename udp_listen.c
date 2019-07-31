@@ -152,19 +152,7 @@ void process_message(char *message) {
                     sprintf(message, "Value %ld = %d\n", requested_index, array[requested_index]);;
                 }
 
-
-
-
-
-//                int array_length = Sorter_getArrayLength();
-//                if (requested_index < 0 || requested_index > array_length) {
-//                    sprintf(message, "Invalid argument. Must be between 1 and %d (# found).\n",
-//                            array_length);
-//                } else {
-//                    int element = Sorter_getElementByIndex(requested_index);
-//                    // Generate the answer
-//                    sprintf(message, "Value %ld = %d\n", requested_index, element);;
-//                }
+                free(array);
             }
         }
 
