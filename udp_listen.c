@@ -143,15 +143,15 @@ void process_message(char *message) {
                 long requested_index = strtol(subbuff, &end, 0);
                 printf("requested_index :%ld\n", requested_index);
                 int array_length = Sorter_getArrayLength();
-                if (requested_index < 1 || requested_index > array_length) {
+                if (requested_index < 0 || requested_index > array_length) {
                     sprintf(message, "Invalid argument. Must be between 1 and %d (# found).\n",
                             array_length);
                 }
-//                else {
-//                    int element = Sorter_getElementByIndex(requested_index);
-//                    // Generate the answer
-//                    sprintf(message, "Value %ld= %d\n", requested_index, element);;
-//                }
+                else {
+                    int element = Sorter_getElementByIndex(requested_index);
+                    // Generate the answer
+                    sprintf(message, "Value %ld = %d\n", requested_index, element);;
+                }
             }
         }
 

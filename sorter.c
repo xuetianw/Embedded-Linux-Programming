@@ -14,9 +14,7 @@ long long unsigned sorted_total;
 pthread_t sorter_id;
 int static stopping = 0;
 pthread_mutex_t mutex = PTHREAD_MUTEX_INITIALIZER;
-
-
-void static fillin_array();
+pthread_mutex_t mutex2 = PTHREAD_MUTEX_INITIALIZER;
 
 void static swap(int* xp, int* yp)
 {
@@ -43,6 +41,7 @@ void static bubbleSort()
         if (swapped == 0)
             break;
     }
+    sorted_total++;
 }
 
 void static permutate_array()
@@ -60,20 +59,48 @@ void static permutate_array()
 void* sort_thread()
 {
     while (!stopping) {
+        pthread_mutex_lock(&mutex2);
+
+        free(arr);
         pthread_mutex_lock(&mutex);
-        {
-            arr = malloc(sizeof(arr) * array_size);
-            for (int i = 0; i < array_size; i++) {
-                arr[i] = i + 1;
-            }
-            permutate_array();
-            bubbleSort();
+
+        arr = malloc(sizeof(arr) * array_size);
+
+        for (int i = 0; i < array_size; i++) {
+            arr[i] = i + 1;
         }
+
+        pthread_mutex_unlock(&mutex2);
+
+
+        srand(time(NULL));
+        for (int i = 0; i < 1000; i++) {
+            int index1 = rand() % array_size;
+            int index2 = rand() % array_size;
+            int temp = arr[index1];
+            arr[index1] = arr[index2];
+            arr[index2] = temp;
+        }
+
+        int i, j;
+        int swapped;
+        for (i = 0; i < array_size - 1; i++) {
+            swapped = 0;
+            for (j = 0; j < array_size - i - 1; j++) {
+                if (arr[j] > arr[j + 1]) {
+                    swap(&arr[j], &arr[j + 1]);
+                    swapped = 1;
+                }
+            }
+
+            // IF no two elements were swapped by inner loop, then break
+            if (swapped == 0)
+                break;
+        }
+        sorted_total++;
+
         pthread_mutex_unlock(&mutex);
 
-        sorted_total++;
-        free(arr);
-//        printf("sorted_total: %lld\n", sorted_total);
     }
 }
 
@@ -104,25 +131,15 @@ void Sorter_setArraySize(int newSize) {
 
 int Sorter_getElementByIndex(int index)
 {
-//    pthread_mutex_lock(&mutex);
-//    {
-//        if (index < array_size) {
-//            return arr[index];
-//        } else {
-//            return 0;
-//        }
-//    }
-//    pthread_mutex_unlock(&mutex);
-
-//    unsigned long long primeRequested = 0;
-//    pthread_mutex_lock(&s_primeMutex);
-//    {
-//        if (index < s_primesFound) {
-//            primeRequested = s_pPrimes[index];
-//        }
-//    }
-//    pthread_mutex_unlock(&s_primeMutex);
-//    return primeRequested;
+    int copy = 0;
+    pthread_mutex_lock(&mutex2);
+    {
+        if (index < array_size) {
+            copy = arr[index];
+        }
+    }
+    pthread_mutex_unlock(&mutex2);
+    return copy;
 }
 
 int Sorter_getArrayLength(void)
