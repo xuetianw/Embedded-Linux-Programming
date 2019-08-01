@@ -32,7 +32,7 @@
 #include "I2C.h"
 #include "sorter.h"
 
-#define MSG_MAX_LEN 1024
+#define MSG_MAX_LEN 10240
 #define PORT		22110
 
 pthread_t udp_id;
@@ -124,8 +124,23 @@ void process_message(char *message) {
     }  else if (strcmp(message, "get length\n") == 0) {
         sprintf(message, "Current array length = %d\n", Sorter_getArrayLength());
     } else if (strcmp(message, "get arr\n") == 0) {
-//        int *arr = getArray();
-        sprintf(message, "%s", "get arr\n");
+        int array_length;
+        int *array = Sorter_getArrayData(&array_length);
+        int count = 0;
+        for (int i = 0; i < array_length; i++) {
+            char result[1];
+            if ( (i == (array_length - 1)) || ((count != 0) && (count % 10 == 9))) {
+                strcat(message, "\n");
+            } else{
+                sprintf(result, "%d", array[count]);
+                strcat(message, result);
+                strcat(message, ", ");
+            }
+            count++;
+        }
+        strcat(message, "\n");
+
+        free(array);
     } else if (strcmp(message, "stop\n") == 0) {
         stopping = 1;
         stop_a2d();
@@ -149,12 +164,10 @@ void process_message(char *message) {
                     sprintf(message, "Invalid argument. Must be between 1 and %d (# found).\n",
                             array_length);
                 } else {
-                    sprintf(message, "Value %ld = %d\n", requested_index, array[requested_index]);;
+                    sprintf(message, "Value %ld = %d\n", requested_index, array[requested_index]);
                 }
-
                 free(array);
             }
         }
-
     }
 }
