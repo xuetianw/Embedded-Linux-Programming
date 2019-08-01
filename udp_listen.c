@@ -1,26 +1,3 @@
-/*
- * UDP Listening program on port 22110
- * By Brian Fraser, Modified from Linux Programming Unleashed (book)
- *
- * Usage:
- *	On the target, run this program (netListenTest).
- *	On the host:
- *		> netcat -u 192.168.0.171 22110
- *		(Change the IP address to your board)
- *
- *	On the host, type in a number and press enter:
- *		4<ENTER>
- *
- *	On the target, you'll see a debug message:
- *	    Message received (2 bytes):
- *	    '4
- *	    '
- *
- *	On the host, you'll see the message:
- *	    Math: 4 + 1 = 5
- *
- */
-
 #include <stdio.h>
 #include <stdlib.h>
 #include <netdb.h>
@@ -86,18 +63,9 @@ void *udp_thread()
 				(struct sockaddr *) &sin, &sin_len);
 
 		// Make it null terminated (so string functions work):
-		// NOTE: Unsafe in some cases; why?
 		message[bytesRx] = 0;
-//		printf("Message received (%d bytes): \n\n'%s'\n", bytesRx, message);
+
 		process_message(message, &sin);
-
-		// Extract the value from the message:
-		// (Process the message any way your app requires).
-//		int incMe = atoi(message);
-
-		// Compose the reply message (re-using the same buffer here):
-		// (NOTE: watch for buffer overflows!).
-//		sprintf(message, "Math: %d + 1 = %d\n", incMe, incMe + 1);
 
 		// Transmit a reply:
         send_message(message, &sin);
@@ -137,13 +105,12 @@ void process_message(char *message, struct sockaddr_in* sin) {
         int count = 0;
         for (int i = 0; i < array_length; i++) {
             char result[1];
-            if ( (i == (array_length - 1)) || ((count != 0) && (count % 10 == 9))) {
+            if ( (i == (array_length)) || ((count != 0) && (count % 10 == 9))) {
                 strcat(message, "\n");
-            } else{
-                sprintf(result, "%d", array[count]);
-                strcat(message, result);
-                strcat(message, ", ");
             }
+            sprintf(result, "%d", array[count]);
+            strcat(message, result);
+            strcat(message, ", ");
             count++;
             if (i % 300 == 0) {
                 send_message(message, sin);

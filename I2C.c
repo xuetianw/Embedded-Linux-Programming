@@ -164,26 +164,6 @@ pthread_t change_display_id;
 
 
 
-
-// Insert the above functions here...
-//int main()
-//{
-//    I2C_init();
-//    i2c_display_thread();
-////    i2c_cleanup();
-//
-//
-//    return 0;
-//}
-
-void i2c_cleanup() {// Cleanup I2C access;
-    writeI2cReg(i2cFileDesc, REG_DIRA, 0x00);
-    writeI2cReg(i2cFileDesc, REG_DIRB, 0x00);
-    FileIODrv_echo_to_file("/sys/class/gpio/gpio44/value", "0");
-    FileIODrv_echo_to_file("/sys/class/gpio/gpio61/value", "0");
-    close(i2cFileDesc);
-}
-
 void I2C_init() {
     export_gpio(61);
     export_gpio(44);
@@ -214,7 +194,7 @@ void I2C_display_cleanup()
 }
 
 
-void display_digits(int left_num, int right_num) {
+void display_digits() {
     turn_on_left();
     turn_off_right();
     display_number(left_digit);
@@ -242,18 +222,6 @@ void *change_digits() {
             right_digit = sorted_lastsecond % 10;
         }
         printf("previous_sort_total %d \n", sorted_lastsecond);
-
-
-//        printf("left_digit %d, right_digit %d\n", left_digit, right_digit);
-//        left_digit = rand() % 10;
-//        right_digit = rand() % 10;
-//        for (int i = 0; i < 99; i++) {
-//            left_digit = i / 10;
-//            right_digit = i % 10;
-//            sleep(1);
-//            printf("left_digit, right_digit set\n");
-//        }
-//        printf("change_digits\n");
     }
     printf("change_digits terminated\n");
     return NULL;
@@ -264,7 +232,7 @@ void *i2c_display_thread() {
 // (Like an X with a bar on top & bottom)
     while (!stopping) {
 //        printf("left dight: %d, right digit %d\n", left_digit, right_digit);
-        display_digits(left_digit, right_digit);
+        display_digits();
 //        unsigned char regVal = readI2cReg(i2cFileDesc, REG_OUTA);
 //        printf("Reg OUT-A = 0x%02x\n", regVal);
     }
@@ -333,7 +301,7 @@ void turn_off_left() { FileIODrv_echo_to_file("/sys/class/gpio/gpio61/value", "0
 
 void timing() {//    printf("Timing test\n");
     long seconds = 0;
-    long nanoseconds = 1e+7;
+    long nanoseconds = 10000000;
     struct timespec reqDelay = {seconds, nanoseconds};
     nanosleep(&reqDelay, (struct timespec*) NULL);
 }

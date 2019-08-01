@@ -83,6 +83,7 @@ void* sort_thread()
         pthread_mutex_unlock(&mutex);
 
     }
+    free(arr);
 }
 
 void Sorter_startSorting(void)
@@ -108,19 +109,6 @@ void Sorter_setArraySize(int newSize) {
         array_size = newSize;
     }
     pthread_mutex_unlock(&mutex);
-}
-
-int Sorter_getElementByIndex(int index)
-{
-    int copy = 0;
-    pthread_mutex_lock(&mutex2);
-    {
-        if (index < array_size) {
-            copy = arr[index];
-        }
-    }
-    pthread_mutex_unlock(&mutex2);
-    return copy;
 }
 
 int Sorter_getArrayLength(void)
