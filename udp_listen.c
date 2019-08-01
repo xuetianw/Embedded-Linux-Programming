@@ -37,7 +37,7 @@
 
 pthread_t udp_id;
 void *udp_thread();
-void process_message(char *message);
+void process_message(char *message, struct sockaddr_in* sin);
 static int stopping = 0;
 
 void UdpListener_startListening()
@@ -49,6 +49,11 @@ void Udp_cleanup()
 {
     pthread_join(udp_id, NULL);
 }
+
+int socketDescriptor;
+unsigned int sin_len;
+
+void send_message(const char* message, struct sockaddr_in* sin);
 
 void *udp_thread()
 {
@@ -67,7 +72,7 @@ void *udp_thread()
 	sin.sin_port = htons(PORT);                 // Host to Network short
 	
 	// Create the socket for UDP
-	int socketDescriptor = socket(PF_INET, SOCK_DGRAM, 0);
+	socketDescriptor = socket(PF_INET, SOCK_DGRAM, 0);
 
 	// Bind the socket to the port (PORT) that we specify
 	bind (socketDescriptor, (struct sockaddr*) &sin, sizeof(sin));
@@ -76,7 +81,7 @@ void *udp_thread()
 		// Get the data (blocking)
 		// Will change sin (the address) to be the address of the client.
 		// Note: sin passes information in and out of call!
-		unsigned int sin_len = sizeof(sin);
+		sin_len = sizeof(sin);
 		int bytesRx = recvfrom(socketDescriptor, message, MSG_MAX_LEN, 0,
 				(struct sockaddr *) &sin, &sin_len);
 
@@ -84,7 +89,7 @@ void *udp_thread()
 		// NOTE: Unsafe in some cases; why?
 		message[bytesRx] = 0;
 //		printf("Message received (%d bytes): \n\n'%s'\n", bytesRx, message);
-		process_message(message);
+		process_message(message, &sin);
 
 		// Extract the value from the message:
 		// (Process the message any way your app requires).
@@ -95,12 +100,8 @@ void *udp_thread()
 //		sprintf(message, "Math: %d + 1 = %d\n", incMe, incMe + 1);
 
 		// Transmit a reply:
-		sin_len = sizeof(sin);
-		sendto( socketDescriptor,
-				message, strlen(message),
-				0,
-				(struct sockaddr *) &sin, sin_len);
-	}
+        send_message(message, &sin);
+    }
     printf("udp_thread terminated\n");
 
 	// Close
@@ -109,7 +110,14 @@ void *udp_thread()
 	return 0;
 }
 
-void process_message(char *message) {
+void send_message(const char* message, struct sockaddr_in* sin) {
+    sendto(socketDescriptor,
+           message, strlen(message),
+           0,
+           (struct sockaddr*) sin, sin_len);
+}
+
+void process_message(char *message, struct sockaddr_in* sin) {
     printf("%s\n", message);
     if(strcmp(message, "help\n") == 0)
     {
@@ -137,7 +145,12 @@ void process_message(char *message) {
                 strcat(message, ", ");
             }
             count++;
+            if (i % 300 == 0) {
+                send_message(message, sin);
+                memset( message, '\0', strlen(message) );
+            }
         }
+
         strcat(message, "\n");
 
         free(array);
