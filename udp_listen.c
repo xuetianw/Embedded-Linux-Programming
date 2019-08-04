@@ -36,9 +36,10 @@ void *udp_thread()
 {
 	printf("Fred's Net Listen Test on UDP port %d:\n", PORT);
 	printf("Connect using: \n");
-	printf("    netcat -u 127.0.0.1 %d\n", PORT);
+//	printf("    netcat -u 127.0.0.1 %d\n", PORT);
+    printf("    netcat -u 192.168.7.2 %d\n", PORT);
 
-	// Buffer to hold packet data:
+    // Buffer to hold packet data:
 	char message[MSG_MAX_LEN];
 
 	// Address

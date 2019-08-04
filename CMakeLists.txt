@@ -6,7 +6,7 @@ SET(CMAKE_C_COMPILER arm-linux-gnueabihf-gcc)
 
 set(CMAKE_RUNTIME_OUTPUT_DIRECTORY "~/cmpt433/public")
 
-add_executable(CMPT433ASS2
+add_executable(Sorter
         udp_listen.c
         main.c
         a2d.c
@@ -15,4 +15,4 @@ add_executable(CMPT433ASS2
         )
 
 
-target_link_libraries(CMPT433ASS2 pthread)
+target_link_libraries(Sorter pthread)
