@@ -16,6 +16,8 @@ Zen cape’s 2-character (14-segment display) to display the number of arrays so
 
 
 user connect to the socket netcat -u 192.168.7.2
+![alt text](README-photos/image3.png)
+
 ![alt text](README-photos/image2)
 
 
