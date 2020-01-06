@@ -5,6 +5,8 @@
 #include "I2C.h"
 #include "sorter.h"
 #include <stdlib.h>
+#include "change_digits.h"
+
 
 int main() {
 
@@ -15,11 +17,15 @@ int main() {
     I2C_start_display();
     UdpListener_startListening();
     Sorter_startSorting();
+    Start_changing_digit();
 
 
     Udp_cleanup();
     I2C_display_cleanup();
     pot_cleanup();
     Sorter_cleanup();
+    change_display_cleanup();
+
+
     return 0;
 }

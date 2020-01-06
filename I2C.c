@@ -13,6 +13,7 @@
 #include <pthread.h>
 #include "I2C.h"
 #include "sorter.h"
+#include "change_digits.h"
 
 
 #define I2CDRV_LINUX_BUS0 "/dev/i2c-0"
@@ -137,8 +138,7 @@ int FileIODrv_echo_to_file(char* file, char* buff)
 
 static int stopping = 0;
 
-int left_digit = 0;
-int right_digit = 0;
+
 
 void turn_on_left();
 
@@ -160,7 +160,7 @@ void turn_off_left();
 void timing();
 
 pthread_t display_id;
-pthread_t change_display_id;
+
 
 
 
@@ -183,49 +183,28 @@ void I2C_init() {
 void I2C_start_display()
 {
     pthread_create(&display_id, NULL, i2c_display_thread, NULL);
-    pthread_create(&change_display_id, NULL, change_digits, NULL);
-//    change_digits();
 }
 
 void I2C_display_cleanup()
 {
     pthread_join(display_id, NULL);
-    pthread_join(change_display_id, NULL);
+
 }
 
 
 void display_digits() {
     turn_on_left();
     turn_off_right();
-    display_number(left_digit);
+    display_number(get_left_digit());
     timing();
     turn_off_left();
     turn_on_right();
-    display_number(right_digit);
+    display_number(get_right_digit());
     timing();
 }
 
-int previous_sort_total = 0;
-int sort_total;
-int sorted_lastsecond;
-void *change_digits() {
-    while (!stopping) {
-        second_timing();
-        sort_total = Sorter_getNumberArraysSorted();
-        sorted_lastsecond = sort_total - previous_sort_total;
-        previous_sort_total = sort_total;
-        if (sorted_lastsecond >= 99) {
-            left_digit = 9;
-            right_digit = 9;
-        } else {
-            left_digit = sorted_lastsecond / 10;
-            right_digit = sorted_lastsecond % 10;
-        }
-        printf("previous_sort_total %d \n", sorted_lastsecond);
-    }
-    printf("change_digits terminated\n");
-    return NULL;
-}
+
+
 
 void *i2c_display_thread() {
     // Drive an hour-glass looking character
@@ -302,13 +281,6 @@ void turn_off_left() { FileIODrv_echo_to_file("/sys/class/gpio/gpio61/value", "0
 void timing() {//    printf("Timing test\n");
     long seconds = 0;
     long nanoseconds = 10000000;
-    struct timespec reqDelay = {seconds, nanoseconds};
-    nanosleep(&reqDelay, (struct timespec*) NULL);
-}
-
-void second_timing() {//    printf("Timing test\n");
-    long seconds = 1;
-    long nanoseconds = 0;
     struct timespec reqDelay = {seconds, nanoseconds};
     nanosleep(&reqDelay, (struct timespec*) NULL);
 }

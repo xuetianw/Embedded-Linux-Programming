@@ -12,7 +12,7 @@ add_executable(Sorter
         a2d.c
         I2C.c
         sorter.c
-        )
+        change_digits.c change_digits.h Utility.c Utility.h)
 
 
 target_link_libraries(Sorter pthread)

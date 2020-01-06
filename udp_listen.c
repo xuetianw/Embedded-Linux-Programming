@@ -8,6 +8,7 @@
 #include "a2d.h"
 #include "I2C.h"
 #include "sorter.h"
+#include "change_digits.h"
 
 #define MSG_MAX_LEN 10240
 #define PORT		22110
@@ -127,6 +128,7 @@ void process_message(char *message, struct sockaddr_in* sin) {
         stop_a2d();
         stop_I2C();
         Sorter_stopSorting();
+        stop_change_digits();
     } else {
         if (strlen(message) >= strlen("get #\n")) {
             char subbuff[strlen(message) + 1];
