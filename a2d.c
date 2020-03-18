@@ -11,8 +11,8 @@
 #include "sorter.h"
 
 
-int A2D_reading[10] = {0, 500, 1000, 1500, 2000, 2500, 3000, 3500, 4000, 4100};
-int arraysize[10] = {1, 20, 60, 120, 250, 300, 500, 800, 1200, 2100};
+int static A2D_reading[10] = {0, 500, 1000, 1500, 2000, 2500, 3000, 3500, 4000, 4100};
+int static array_size[10] = {1, 20, 60, 120, 250, 300, 500, 800, 1200, 2100};
 
 
 #define A2D_FILE_VOLTAGE0 "/sys/bus/iio/devices/iio:device0/in_voltage0_raw"
@@ -88,13 +88,15 @@ void *pot_thread()
 
 int process_voltage(double reading) {
     for (int i = 0; i < 9; i ++) {
-        int left_read = A2D_reading[i];
-        int right_read = A2D_reading[i + 1];
-        if (left_read < reading && reading < right_read) {
-            int left_size = arraysize[i];
-            int right_size = arraysize[i + 1];
-            double slope = (double) (right_size - left_size) / (right_read - left_read);
-            int result = left_size + slope * (reading - A2D_reading[i]);
+        int readings[2] = {A2D_reading[i], A2D_reading[i + 1]};
+        int left_read_val = readings[0];
+        int right_read_val = readings[1];
+        if (left_read_val < reading && reading < right_read_val) {
+            int size_arr[2] = {array_size[i], array_size[i + 1] };
+            int left_size = size_arr[0];
+            int right_size = size_arr[1];
+            double slope = (double) (right_size - left_size) / (right_read_val - left_read_val);
+            int result = left_size + slope * (reading - left_read_val);
             return result;
         }
     }

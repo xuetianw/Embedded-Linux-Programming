@@ -8,9 +8,9 @@
 #include <stdio.h>
 #include <zconf.h>
 
-int* arr;
+static int* arr;
 int array_size = 100;
-long long unsigned sorted_total;
+long long sorted_total;
 pthread_t sorter_id;
 int static stopping = 0;
 pthread_mutex_t mutex = PTHREAD_MUTEX_INITIALIZER;
