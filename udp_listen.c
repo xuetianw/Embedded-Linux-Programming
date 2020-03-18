@@ -106,7 +106,7 @@ void process_message(char *message, struct sockaddr_in* sin) {
         int *array = Sorter_getArrayData(&array_length);
         int count = 0;
         for (int i = 0; i < array_length; i++) {
-            char result[1];
+            char result[2];
             if ( (i == (array_length)) || ((count != 0) && (count % 10 == 9))) {
                 strcat(message, "\n");
             }
